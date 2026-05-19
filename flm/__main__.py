@@ -4,7 +4,7 @@ import nibabel as nib
 import numpy as np
 import scipy.ndimage as nd
 
-from flm.fake_lesion_mask import fake_lesion_mask, OPTIONS, logger
+from flm._fake_lesion_mask import fake_lesion_mask, OPTIONS, logger
 from .utils import setup_loggers, timestampify
 
 

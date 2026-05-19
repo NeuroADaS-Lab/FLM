@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "flm"
+version = "0.1.0"
+authors = [
+    {name = "Vicent Caselles-Ballester", email = "vcasellesb@uoc.edu"},
+    {name = "Ferran Prados"}
+]
+dependencies = [
+   "numpy",
+   "scipy",
+   "nibabel"
+]
+
+[project.scripts]
+flm = "flm.__main__:cli_main"

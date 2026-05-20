@@ -7,7 +7,8 @@ name = "fake_lesion_mask"
 version = "0.1.0"
 authors = [
     {name = "Vicent Caselles-Ballester", email = "vcasellesb@uoc.edu"},
-    {name = "Ferran Prados"}
+    {name = "Ferran Prados"},
+    {name = "Marcos Díaz-Hurtado"}
 ]
 dependencies = [
    "numpy",

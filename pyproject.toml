@@ -3,7 +3,7 @@ requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "flm"
+name = "fake_lesion_mask"
 version = "0.1.0"
 authors = [
     {name = "Vicent Caselles-Ballester", email = "vcasellesb@uoc.edu"},
@@ -16,4 +16,4 @@ dependencies = [
 ]
 
 [project.scripts]
-flm = "flm.__main__:cli_main"
+fake_lesion_mask = "fake_lesion_mask.__main__:cli_main"

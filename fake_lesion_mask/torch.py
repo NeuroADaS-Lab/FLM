@@ -18,9 +18,7 @@ class FLMParams:
     ero_p_iters: tuple[float, ...] = (8/12, 3/12, 1/12)
 
 
-# We keep the CPU purely for Connected Components Labeling (CCL), 
-# as PyTorch has no native, fast GPU CCL without external libraries.
-# This takes ~1ms.
+
 def fast_gpu_fake_lesion_mask(lesion_mask: torch.Tensor,
                               structure: np.ndarray | None,
                               params: FLMParams = FLMParams()
@@ -44,8 +42,8 @@ def fast_gpu_fake_lesion_mask(lesion_mask: torch.Tensor,
     erode_iters = []  # tuples of (id, iterations)
     dilate_iters = [] # tuples of (id, iterations)
 
-    for i in range(1, num_lesions + 1):
-        op = np.random.choice(params.options, p=params.p)
+    ops = np.random.choice(params.options, num_lesions, replace=True, p=params.p)
+    for i, op in enumerate(ops, start=1):
 
         if op == 'as_new_lesion':
             continue # doing nothing naturally drops it from the final mask
@@ -58,6 +56,8 @@ def fast_gpu_fake_lesion_mask(lesion_mask: torch.Tensor,
             iters = np.random.choice(params.dil_iters, p=params.dil_p_iters)
             dilate_iters.append((i, iters))
 
+    pool_op = getattr(F, f'max_pool{lesion_mask.ndim}d')
+    pool_kwargs = {'kernel_size': 3, 'stride': 1, 'padding': 1}
     final_mask = torch.zeros_like(lesion_mask, dtype=torch.bool)
 
     # stable lesions
@@ -77,7 +77,7 @@ def fast_gpu_fake_lesion_mask(lesion_mask: torch.Tensor,
 
             # Fast cuDNN native dilation
             for _ in range(current_iter):
-                base_mask = F.max_pool3d(base_mask, kernel_size=3, stride=1, padding=1)
+                base_mask = pool_op(base_mask, **pool_kwargs)
 
             final_mask |= base_mask.squeeze(0).squeeze(0).bool()
 
@@ -90,7 +90,7 @@ def fast_gpu_fake_lesion_mask(lesion_mask: torch.Tensor,
 
             # Fast cuDNN native erosion (Max pooling the inverted mask)
             for _ in range(current_iter):
-                base_mask = 1.0 - F.max_pool3d(1.0 - base_mask, kernel_size=3, stride=1, padding=1)
+                base_mask = 1.0 - pool_op(1.0 - base_mask, **pool_kwargs)
 
             final_mask |= base_mask.squeeze(0).squeeze(0).bool()
 
